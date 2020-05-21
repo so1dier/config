@@ -117,3 +117,98 @@ if ! shopt -oq posix; then
 fi
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+
+#aliases
+alias sl="ls"
+alias mv="mv -i"
+alias gs="git status"
+alias ga="git add"
+alias gc="git commit -m"
+
+entrgpp(){
+    if [[ $# -eq 1 ]]
+        then
+            build_file_name=$(echo "build_$1" | cut -f 1 -d '.')
+            ls "$1" | entr -c g++ "$1" -g3 -Wfatal-errors -o "$build_file_name"
+        else
+            echo "No file is given"
+    fi
+}
+
+entrun()
+{
+    if [[ $# -eq 1 ]]
+    then
+        ls "$1" | entr -c ./$1
+    else
+        echo "No file is given"
+    fi
+}
+
+mcd(){
+    mkdir -p "$1"
+    cd "$1"
+}
+
+ide(){
+    tmux split-window -h
+    tmux split-window -v
+}
+
+tmidesimple()
+{
+    if [[ $# -eq 1 ]]
+    then
+
+        tab_name="$1"
+        prog_name="$1.cpp"
+        build_name="build_$1"
+
+        if echo $1 | grep -q '.cpp'
+        then
+            prog_name="$1"
+            build_name=$(echo "build_$1" | cut -f 1 -d '.')
+        fi
+
+
+        echo "Program name is: $prog_name"
+        if test -f $prog_name
+        then
+            echo "Program exist"
+        else
+            echo "Program does not exist"
+            cp $prog_name "BACKUP_$prog_name"
+            echo "#include <iostream>" >> $prog_name
+            echo "" >> $prog_name
+            echo "int main()" >> $prog_name
+            echo "{" >> $prog_name
+            echo "    return 0;" >> $prog_name
+            echo "}" >> $prog_name
+        fi
+
+        ##tmux new-session "$tab_name" \; split-window -h \; split-window -h \; split-window -v \; send-keys "echo hello" C-m\;
+        tmux new-session "$tab_name" \; \
+            split-window -h \; send-keys "vim $prog_name" C-m \; \
+            split-window -h \; send-keys "entrgpp $prog_name" C-m \; \
+            split-window -v \; send-keys "entrun $build_name" C-m\;
+    else
+        echo "No file is given"
+    fi
+}
+
+tmidecpp(){
+    if [[ $# -eq 1 ]]
+    then
+        file_name="$1.cpp"
+        tmux new-session "$1" \;\
+            send-keys "vim $file_name" C-m \;
+    else
+        echo "No file is given"
+    fi
+}
+
+tmts(){
+    args=$@
+    tmux send-keys -t right "$args" C-m
+}

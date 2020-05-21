@@ -71,7 +71,7 @@ nmap <leader>w :w!<cr>
 
 " :W sudo saves the file 
 " (useful for handling the permission-denied error)
-command W w !sudo tee % > /dev/null
+command! W w !sudo tee % > /dev/null
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -407,3 +407,48 @@ set tags=./tags;
 
 "" ctrlP plugin 
 set runtimepath^=~/.vim/bundle/ctrlp.vim
+
+
+
+
+
+
+"" Tab completion
+"" will insert tab at beginning of line,
+"" will use completion if not at beginning
+set wildmode=list:longest,list:full
+function! InsertTabWrapper()
+    let col = col('.') - 1
+    if !col || getline('.')[col - 1] !~ '\k'
+        return "\<tab>"
+    else
+        return "\<c-p>"
+    endif
+endfunction
+inoremap <Tab> <c-r>=InsertTabWrapper()<cr>
+inoremap <S-Tab> <c-n>
+
+" . scan the current buffer, b scan other loaded buffers that are in the buffer list, u scan the unloaded buffers that 
+" are in the buffer list, w scan buffers from other windows, t tag completion
+set complete=.,b,u,w,t,]
+
+" Keyword list 
+"set complete+=k~/.vim/keywords.txt
+
+
+" set the ctags on
+"set tags=tags
+
+
+"setting up clang_complete
+let g:clang_library_path = '/usr/lib/x86_64-linux-gnu'
+let g:clang_c_options = '-std=gnu11'
+let g:clang_cpp_options = '-std=c++11 -stdlib=libc++'
+let g:clang_complete = 1 "automatically selects the first entry in the popup menu
+let g:clang_snippets = 1 "do some snippets magic on code placehorlders like funcion argument, template parameters, etc.
+let g:clang_close_preview = 1
+
+
+"map <f4> :p,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,
+nnoremap <C-h> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
+
